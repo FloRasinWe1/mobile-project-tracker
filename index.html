@@ -1,159 +1,561 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#111827">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<title>Project Tracker</title>
 
-  <title>Project Tracker</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ background:#eef1f5;
+ color:#111827;
+}
+header{
+ background:#0f172a;
+ color:white;
+ padding:24px 18px 20px;
+ text-align:center;
+}
+header h1{margin:0;font-size:28px}
+header p{margin:6px 0 0;color:#cbd5e1}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+main{max-width:720px;margin:auto;padding:16px}
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #f3f4f6;
-      color: #111827;
-    }
+.new{
+ width:100%;
+ padding:16px;
+ border:0;
+ border-radius:14px;
+ background:#2563eb;
+ color:white;
+ font-size:18px;
+ font-weight:700;
+ margin-bottom:20px;
+}
 
-    header {
-      background: #111827;
-      color: white;
-      padding: 22px 18px;
-      text-align: center;
-    }
+.summary{
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:10px;
+ margin-bottom:22px;
+}
+.stat{
+ background:white;
+ border-radius:14px;
+ padding:14px 8px;
+ text-align:center;
+ box-shadow:0 2px 8px #0001;
+}
+.stat strong{display:block;font-size:22px}
+.stat span{font-size:12px;color:#64748b}
 
-    header h1 {
-      margin: 0;
-      font-size: 25px;
-    }
+.section-title{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ font-size:20px;
+ font-weight:800;
+ margin:20px 0 10px;
+}
 
-    header p {
-      margin: 6px 0 0;
-      color: #cbd5e1;
-      font-size: 14px;
-    }
+.section-title small{
+ font-size:13px;
+ color:#64748b;
+ font-weight:500;
+}
 
-    main {
-      padding: 16px;
-      max-width: 700px;
-      margin: auto;
-    }
+.card{
+ background:white;
+ border-radius:15px;
+ padding:16px;
+ margin-bottom:12px;
+ box-shadow:0 2px 8px #0001;
+ border-left:6px solid #94a3b8;
+}
 
-    .section {
-      margin-bottom: 22px;
-    }
+.card.side{border-color:#2563eb}
+.card.main{border-color:#16a34a}
+.card.emergency{border-color:#dc2626}
 
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
+.card h3{margin:0 0 6px;font-size:18px}
+.meta{font-size:13px;color:#64748b;margin:4px 0}
 
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    }
+.progress{
+ height:9px;
+ background:#e5e7eb;
+ border-radius:10px;
+ overflow:hidden;
+ margin:12px 0 6px;
+}
+.progress div{
+ height:100%;
+ background:#2563eb;
+}
 
-    .side {
-      border-left: 6px solid #3b82f6;
-    }
+.row{
+ display:flex;
+ justify-content:space-between;
+ gap:10px;
+ font-size:13px;
+ margin-top:8px;
+}
 
-    .main-project {
-      border-left: 6px solid #22c55e;
-    }
+.actions{
+ display:flex;
+ gap:8px;
+ margin-top:12px;
+}
 
-    .emergency {
-      border-left: 6px solid #ef4444;
-    }
+.actions button{
+ flex:1;
+ padding:10px;
+ border:0;
+ border-radius:10px;
+ font-weight:600;
+ background:#e5e7eb;
+}
 
-    button {
-      width: 100%;
-      border: none;
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      background: #111827;
-      color: white;
-      margin-top: 8px;
-    }
+.actions .complete{
+ background:#16a34a;
+ color:white;
+}
 
-    button:active {
-      transform: scale(.98);
-    }
+.empty{
+ text-align:center;
+ color:#64748b;
+ padding:18px;
+ background:white;
+ border-radius:14px;
+}
 
-    .empty {
-      color: #6b7280;
-      text-align: center;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-    }
-  </style>
+.modal{
+ display:none;
+ position:fixed;
+ inset:0;
+ background:#0008;
+ z-index:10;
+ padding:15px;
+ overflow:auto;
+}
+
+.modal-box{
+ background:white;
+ max-width:600px;
+ margin:30px auto;
+ border-radius:18px;
+ padding:20px;
+}
+
+.modal h2{margin-top:0}
+
+label{
+ display:block;
+ font-size:13px;
+ font-weight:700;
+ margin:13px 0 5px;
+}
+
+input,select,textarea{
+ width:100%;
+ padding:12px;
+ border:1px solid #cbd5e1;
+ border-radius:10px;
+ font-size:16px;
+ background:white;
+}
+
+textarea{min-height:80px;resize:vertical}
+
+.modal-buttons{
+ display:flex;
+ gap:10px;
+ margin-top:20px;
+}
+
+.modal-buttons button{
+ flex:1;
+ padding:14px;
+ border:0;
+ border-radius:12px;
+ font-size:16px;
+ font-weight:700;
+}
+
+.save{background:#2563eb;color:white}
+.cancel{background:#e5e7eb}
+
+.completed{
+ opacity:.75;
+}
+
+.completed .progress div{
+ background:#16a34a;
+}
+
+@media(max-width:400px){
+ .summary{gap:6px}
+ .stat{padding:11px 4px}
+ .stat strong{font-size:19px}
+}
+</style>
 </head>
 
 <body>
 
-  <header>
-    <h1>Project Tracker</h1>
-    <p>Track projects, costs, progress and completion</p>
-  </header>
+<header>
+<h1>Project Tracker</h1>
+<p>Projects • Progress • Time • Cost</p>
+</header>
 
-  <main>
+<main>
 
-    <div class="section">
-      <div class="section-title">🔵 Side Projects</div>
+<button class="new" onclick="openNewProject()">＋ New Project</button>
 
-      <div class="card side">
-        <strong>No side projects yet</strong>
-        <p class="empty">Add a low-to-medium priority project.</p>
+<div class="summary">
+ <div class="stat">
+  <strong id="activeCount">0</strong>
+  <span>Active</span>
+ </div>
+ <div class="stat">
+  <strong id="completedCount">0</strong>
+  <span>Completed</span>
+ </div>
+ <div class="stat">
+  <strong id="totalCost">$0</strong>
+  <span>Actual Cost</span>
+ </div>
+</div>
+
+<div class="section-title">
+ 🔵 Side Projects
+ <small id="sideCount">0</small>
+</div>
+<div id="sideProjects"></div>
+
+<div class="section-title">
+ 🟢 Main Projects
+ <small id="mainCount">0</small>
+</div>
+<div id="mainProjects"></div>
+
+<div class="section-title">
+ 🔴 Emergency Projects
+ <small id="emergencyCount">0</small>
+</div>
+<div id="emergencyProjects"></div>
+
+<div class="section-title">
+ ✅ Completed
+</div>
+<div id="completedProjects"></div>
+
+</main>
+
+<!-- PROJECT FORM -->
+
+<div class="modal" id="projectModal">
+<div class="modal-box">
+
+<h2 id="modalTitle">New Project</h2>
+
+<label>Project Title</label>
+<input id="title" placeholder="Example: Basement Drainage">
+
+<label>Project Type</label>
+<select id="type">
+<option value="side">Side Project — Low/Medium</option>
+<option value="main">Main Project — High Priority</option>
+<option value="emergency">Emergency Project</option>
+</select>
+
+<label>Description / Notes</label>
+<textarea id="notes" placeholder="What needs to be done?"></textarea>
+
+<label>Start Date & Time</label>
+<input id="start" type="datetime-local">
+
+<label>Estimated Completion</label>
+<input id="estimatedCompletion" type="datetime-local">
+
+<label>Estimated Cost ($)</label>
+<input id="estimatedCost" type="number" min="0" step="0.01" placeholder="0">
+
+<label>Progress (%)</label>
+<input id="progress" type="number" min="0" max="100" value="0">
+
+<div class="modal-buttons">
+<button class="cancel" onclick="closeModal()">Cancel</button>
+<button class="save" onclick="saveProject()">Save Project</button>
+</div>
+
+</div>
+</div>
+
+<script>
+
+let projects = JSON.parse(localStorage.getItem("projectTracker")) || [];
+let editingId = null;
+
+function saveData(){
+ localStorage.setItem("projectTracker",JSON.stringify(projects));
+}
+
+function money(value){
+ return "$" + Number(value || 0).toLocaleString("en-US",{
+  minimumFractionDigits:2,
+  maximumFractionDigits:2
+ });
+}
+
+function formatDate(value){
+ if(!value)return "Not set";
+ const d=new Date(value);
+ return d.toLocaleString([],{
+  month:"short",
+  day:"numeric",
+  year:"numeric",
+  hour:"numeric",
+  minute:"2-digit"
+ });
+}
+
+function openNewProject(){
+ editingId=null;
+
+ document.getElementById("modalTitle").textContent="New Project";
+
+ document.getElementById("title").value="";
+ document.getElementById("type").value="side";
+ document.getElementById("notes").value="";
+ document.getElementById("start").value="";
+ document.getElementById("estimatedCompletion").value="";
+ document.getElementById("estimatedCost").value="";
+ document.getElementById("progress").value="0";
+
+ document.getElementById("projectModal").style.display="block";
+}
+
+function closeModal(){
+ document.getElementById("projectModal").style.display="none";
+}
+
+function saveProject(){
+
+ const title=document.getElementById("title").value.trim();
+
+ if(!title){
+  alert("Please enter a project title.");
+  return;
+ }
+
+ const project={
+  id:editingId || Date.now(),
+  title:title,
+  type:document.getElementById("type").value,
+  notes:document.getElementById("notes").value,
+  start:document.getElementById("start").value,
+  estimatedCompletion:document.getElementById("estimatedCompletion").value,
+  estimatedCost:Number(document.getElementById("estimatedCost").value||0),
+  progress:Number(document.getElementById("progress").value||0),
+  actualCost:0,
+  completed:false,
+  actualCompletion:null
+ };
+
+ if(editingId){
+  const index=projects.findIndex(p=>p.id===editingId);
+  if(index!==-1){
+   project.actualCost=projects[index].actualCost;
+   project.completed=projects[index].completed;
+   project.actualCompletion=projects[index].actualCompletion;
+   projects[index]=project;
+  }
+ }else{
+  projects.push(project);
+ }
+
+ saveData();
+ closeModal();
+ render();
+}
+
+function editProject(id){
+
+ const p=projects.find(x=>x.id===id);
+ if(!p)return;
+
+ editingId=id;
+
+ document.getElementById("modalTitle").textContent="Edit Project";
+
+ document.getElementById("title").value=p.title;
+ document.getElementById("type").value=p.type;
+ document.getElementById("notes").value=p.notes;
+ document.getElementById("start").value=p.start;
+ document.getElementById("estimatedCompletion").value=p.estimatedCompletion;
+ document.getElementById("estimatedCost").value=p.estimatedCost;
+ document.getElementById("progress").value=p.progress;
+
+ document.getElementById("projectModal").style.display="block";
+}
+
+function completeProject(id){
+
+ const p=projects.find(x=>x.id===id);
+ if(!p)return;
+
+ const cost=prompt(
+  "Enter the actual project cost:",
+  p.estimatedCost || 0
+ );
+
+ if(cost===null)return;
+
+ p.actualCost=Number(cost)||0;
+ p.progress=100;
+ p.completed=true;
+ p.actualCompletion=new Date().toISOString();
+
+ saveData();
+ render();
+}
+
+function deleteProject(id){
+
+ if(!confirm("Delete this project?"))return;
+
+ projects=projects.filter(p=>p.id!==id);
+
+ saveData();
+ render();
+}
+
+function projectCard(p){
+
+ const cls=p.type;
+
+ return `
+ <div class="card ${cls} ${p.completed?"completed":""}">
+
+  <h3>${escapeHTML(p.title)}</h3>
+
+  <div class="meta">
+   ${p.notes ? escapeHTML(p.notes) : "No description"}
+  </div>
+
+  <div class="progress">
+   <div style="width:${Math.min(100,Math.max(0,p.progress))}%"></div>
+  </div>
+
+  <div class="row">
+   <span>Progress</span>
+   <strong>${p.progress}%</strong>
+  </div>
+
+  <div class="row">
+   <span>Estimated Cost</span>
+   <strong>${money(p.estimatedCost)}</strong>
+  </div>
+
+  ${p.completed
+   ? `<div class="row">
+       <span>Actual Cost</span>
+       <strong>${money(p.actualCost)}</strong>
       </div>
-
-      <button onclick="addProject('Side Project')">
-        + Add Side Project
-      </button>
-    </div>
-
-    <div class="section">
-      <div class="section-title">🟢 Main Projects</div>
-
-      <div class="card main-project">
-        <strong>No main projects yet</strong>
-        <p class="empty">Add a high-priority project.</p>
+      <div class="meta">
+       Completed: ${formatDate(p.actualCompletion)}
+      </div>`
+   : `<div class="meta">
+       Started: ${formatDate(p.start)}
       </div>
+      <div class="meta">
+       Est. completion: ${formatDate(p.estimatedCompletion)}
+      </div>`
+  }
 
-      <button onclick="addProject('Main Project')">
-        + Add Main Project
-      </button>
-    </div>
+  <div class="actions">
 
-    <div class="section">
-      <div class="section-title">🔴 Emergency Projects</div>
+   ${
+    p.completed
+    ? `<button onclick="editProject(${p.id})">Edit</button>`
+    : `<button onclick="editProject(${p.id})">Edit</button>
+       <button class="complete" onclick="completeProject(${p.id})">
+       Complete
+       </button>`
+   }
 
-      <div class="card emergency">
-        <strong>No emergency projects yet</strong>
-        <p class="empty">Emergency projects can be logged after completion.</p>
-      </div>
+   <button onclick="deleteProject(${p.id})">Delete</button>
 
-      <button onclick="addProject('Emergency Project')">
-        + Log Emergency Project
-      </button>
-    </div>
+  </div>
 
-  </main>
+ </div>
+ `;
+}
 
-  <script>
-    function addProject(type) {
-      alert("Adding a " + type + " will be available in the next version.");
-    }
-  </script>
+function renderSection(id,type){
+
+ const container=document.getElementById(id);
+
+ const list=projects.filter(p=>p.type===type && !p.completed);
+
+ if(list.length===0){
+  container.innerHTML=
+   `<div class="empty">No active projects</div>`;
+ }else{
+  container.innerHTML=list.map(projectCard).join("");
+ }
+}
+
+function render(){
+
+ renderSection("sideProjects","side");
+ renderSection("mainProjects","main");
+ renderSection("emergencyProjects","emergency");
+
+ const completed=projects.filter(p=>p.completed);
+
+ document.getElementById("completedProjects").innerHTML=
+  completed.length
+  ? completed.map(projectCard).join("")
+  : `<div class="empty">No completed projects yet</div>`;
+
+ const active=projects.filter(p=>!p.completed);
+
+ document.getElementById("activeCount").textContent=active.length;
+ document.getElementById("completedCount").textContent=completed.length;
+
+ const total=projects.reduce(
+  (sum,p)=>sum+(Number(p.actualCost)||0),0
+ );
+
+ document.getElementById("totalCost").textContent=money(total);
+
+ document.getElementById("sideCount").textContent=
+  projects.filter(p=>p.type==="side"&&!p.completed).length;
+
+ document.getElementById("mainCount").textContent=
+  projects.filter(p=>p.type==="main"&&!p.completed).length;
+
+ document.getElementById("emergencyCount").textContent=
+  projects.filter(p=>p.type==="emergency"&&!p.completed).length;
+}
+
+function escapeHTML(str){
+ return String(str||"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+render();
+
+</script>
 
 </body>
 </html>
